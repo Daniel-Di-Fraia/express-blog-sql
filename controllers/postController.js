@@ -6,8 +6,16 @@ const connection = require('../data/db');
 
 function index(req, res) {
 
-    res.json(blogPosts);
+    // prepariamo la query
+    const sql = 'SELECT * FROM posts';
+
+    // eseguiamo la query
+    connection.query(sql, (err, results) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        res.json(results);
+    });
 }
+
 
 function show(req, res) {
 
