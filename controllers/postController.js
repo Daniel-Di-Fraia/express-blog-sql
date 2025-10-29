@@ -1,9 +1,10 @@
 // importiamo i dati del blog
-const blogPosts = require('../data/postsArray');
+// const blogPosts = require('../data/postsArray');
+
+// Importiamo il file di connessione al database
+const connection = require('../data/db');
 
 function index(req, res) {
-    //prova per vedere errore 500
-    esempio.get();
 
     res.json(blogPosts);
 }
