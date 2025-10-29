@@ -19,23 +19,36 @@ function index(req, res) {
 
 function show(req, res) {
 
-    // recuperiamo l'id dall' URL e convertiamolo in un numero
-    const id = parseInt(req.params.id)
+    // recuperiamo l'id 
+    const id = req.params.id
 
-    const post = blogPosts.find(post => post.id === id);
+    // prima query di rireca di singolo post
+    const postSql = 'SELECT * FROM posts WHERE id = ?';
 
-    //controllo
-    if (!post) {
+    // Prepariamo la query per i tags con join e where
+    const tagsSql = `
+    SELECT T.*
+    FROM tags AS T
+    JOIN post_tag AS PT ON T.id = PT.tag_id
+    WHERE PT.post_id = ? `;
 
-        //status 404
-        res.status(404)
+    // Eseguiamo la prima query per il post
+    connection.query(postSql, [id], (err, postResults) => {
+        if (err) return res.status(500).json({ error: 'Database query failed' });
+        if (postResults.length === 0) return res.status(404).json({ error: 'Post not found' });
 
-        return res.json({
-            error: "Not Found",
-            message: "Post non trovato"
-        })
-    }
-    res.json(post);
+        // Recuperiamo il post
+        const post = postResults[0];
+
+        // eseguiamo la seconda query per i tags
+        connection.query(tagsSql, [id], (err, tagsResults) => {
+            if (err) return res.status(500).json({ error: 'Database query failed' });
+
+            // Aggoiungiamo i tag ai post
+            post.tags = tagsResults;
+            res.json(post);
+        });
+    });
 
 }
 
