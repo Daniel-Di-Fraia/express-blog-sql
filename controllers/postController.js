@@ -125,31 +125,15 @@ function modify(req, res) {
 }
 
 function destroy(req, res) {
-    // recuperiamo l'id
-    const id = parseInt(req.params.id)
+    // recuperiamo l'id 
+    const { id } = req.params;
+    const sql = 'DELETE FROM posts WHERE id = ?'
 
-    // cerchiamo il post tramite id
-    const post = blogPosts.find(post => post.id === id);
-
-    //controllo
-    if (!post) {
-        res.status(404);
-
-        return res.json({
-            status: 404,
-            error: "Not Found",
-            message: "Post non trovato"
-        })
-    }
-
-    // Rimuoviamo il post dal blog
-    blogPosts.splice(blogPosts.indexOf(post), 1);
-
-    //controllo in log in terminale
-    console.log(blogPosts);
-
-    // Restituiamo lo status per l eliminazione andata a buon fine
-    res.sendStatus(204)
+    //Eliminiamo il post dal blog                      
+    connection.query(sql, [id], (err) => {
+        if (err) return res.status(500).json({ error: 'Failed to delete post' });
+        res.sendStatus(204)
+    });
 }
 
 // esportiamo
